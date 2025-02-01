@@ -21,4 +21,12 @@ public class UserService {
             throw new Exception("Insufficient balance.");
         }
     }
+
+    public User findUserById(Long id) throws Exception {
+        return this.userRepository.findUserById(id).orElseThrow(() -> new Exception("User not found."));
+    }
+
+    public void saveUser(User user) {
+        this.userRepository.save(user);
+    }
 }
