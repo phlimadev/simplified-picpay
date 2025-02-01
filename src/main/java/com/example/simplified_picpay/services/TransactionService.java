@@ -5,12 +5,13 @@ import com.example.simplified_picpay.entities.Transaction;
 import com.example.simplified_picpay.entities.User;
 import com.example.simplified_picpay.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+//import java.util.Map;
 
 @Service
 public class TransactionService {
@@ -27,11 +28,11 @@ public class TransactionService {
 
         userService.validateTransaction(payer, transaction.value());
 
-        boolean isAuthorized = authorizingService();
-
-        if (!isAuthorized) {
-            throw new Exception("Unauthorized transaction.");
-        }
+//        boolean isAuthorized = authorizingService();
+//
+//        if (!isAuthorized) {
+//            throw new Exception("Unauthorized transaction.");
+//        }
 
         Transaction newTransaction = new Transaction();
         newTransaction.setPayer(payer);
@@ -50,13 +51,13 @@ public class TransactionService {
         return newTransaction;
     }
 
-    private boolean authorizingService() {
-        ResponseEntity<Map> authorization = restTemplate.getForEntity("https://util.devi.tools/api/v2/authorize", Map.class);
-
-        if (authorization.getBody().get("status") == "success") {
-            return true;
-        }
-
-        return false;
-    }
+//    private boolean authorizingService() {
+//        ResponseEntity<Map> authorization = restTemplate.getForEntity("https://util.devi.tools/api/v2/authorize", Map.class);
+//
+//        if (authorization.getBody().get("status") == "success") {
+//            return true;
+//        }
+//
+//        return false;
+//    }
 }
