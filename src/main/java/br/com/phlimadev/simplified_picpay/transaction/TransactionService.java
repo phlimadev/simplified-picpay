@@ -1,5 +1,7 @@
 package br.com.phlimadev.simplified_picpay.transaction;
 
+import br.com.phlimadev.simplified_picpay.exceptions.ApplicationException;
+import br.com.phlimadev.simplified_picpay.exceptions.IdNotFoundException;
 import br.com.phlimadev.simplified_picpay.user.UserModel;
 import br.com.phlimadev.simplified_picpay.user.UserRepository;
 import br.com.phlimadev.simplified_picpay.user.UserType;
@@ -19,15 +21,15 @@ public class TransactionService {
 
     private void validateTransaction(UserModel payer, BigDecimal value) {
         if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Transaction value must be greater than zero");
+            throw new ApplicationException("Transaction value must be greater than zero");
         }
 
         if (payer.getBalance().compareTo(value) < 0) {
-            throw new RuntimeException("Insufficient balance");
+            throw new ApplicationException("Insufficient balance");
         }
 
         if (payer.getUserType() == UserType.MERCHANT) {
-            throw new RuntimeException("Merchant type users cannot make transactions.");
+            throw new ApplicationException("Merchant type users cannot make transactions.");
         }
     }
 
@@ -41,8 +43,8 @@ public class TransactionService {
 
     @Transactional
     public void createTransaction(TransactionDTO transactionDTO) {
-        UserModel payer = userRepository.findById(transactionDTO.payer()).orElseThrow(() -> new RuntimeException("Payer not found"));
-        UserModel payee = userRepository.findById(transactionDTO.payee()).orElseThrow(() -> new RuntimeException("Payee not found"));
+        UserModel payer = userRepository.findById(transactionDTO.payer()).orElseThrow(() -> new IdNotFoundException("Payer not found"));
+        UserModel payee = userRepository.findById(transactionDTO.payee()).orElseThrow(() -> new IdNotFoundException("Payee not found"));
         BigDecimal value = transactionDTO.value();
 
         validateTransaction(payer, value);
