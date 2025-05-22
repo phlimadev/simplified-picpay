@@ -1,5 +1,6 @@
 package br.com.phlimadev.simplified_picpay.transaction;
 
+import br.com.phlimadev.simplified_picpay.authorization.AuthorizationService;
 import br.com.phlimadev.simplified_picpay.exceptions.ApplicationException;
 import br.com.phlimadev.simplified_picpay.exceptions.IdNotFoundException;
 import br.com.phlimadev.simplified_picpay.user.UserModel;
@@ -15,6 +16,9 @@ import java.math.BigDecimal;
 public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private AuthorizationService authorizationService;
 
     @Autowired
     private UserRepository userRepository;
@@ -41,6 +45,12 @@ public class TransactionService {
         userRepository.save(payee);
     }
 
+    private void authorizeTransaction() {
+        if (!authorizationService.isAuthorized()) {
+            throw new ApplicationException("Transaction not authorized by external service.");
+        }
+    }
+
     @Transactional
     public void createTransaction(TransactionDTO transactionDTO) {
         UserModel payer = userRepository.findById(transactionDTO.payer()).orElseThrow(() -> new IdNotFoundException("Payer not found"));
@@ -48,6 +58,7 @@ public class TransactionService {
         BigDecimal value = transactionDTO.value();
 
         validateTransaction(payer, value);
+        authorizeTransaction();
         updateBalances(payer, payee, value);
 
         TransactionModel newTransaction = new TransactionModel(null, payer, payee, value, null, null);
